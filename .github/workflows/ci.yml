@@ -77,6 +77,10 @@ jobs:
       - name: Scaffold native platform folders
         run: flutter create --project-name tkk_eyeguard --platforms=android,ios,macos,windows,linux .
 
+      - name: Align Android NDK version with plugins
+        if: matrix.target == 'android'
+        run: sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -95,3 +99,5 @@ jobs:
       - name: Build Windows (debug)
         if: matrix.target == 'windows'
         run: flutter build windows --debug
+        env:
+          CMAKE_GENERATOR: Visual Studio 17 2022

@@ -30,6 +30,8 @@ jobs:
           channel: stable
           cache: true
       - run: flutter create --project-name tkk_eyeguard --platforms=android .
+      - name: Align Android NDK version with plugins
+        run: sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
       - run: flutter pub get
       - name: Build APK
         run: flutter build apk --release
@@ -93,6 +95,8 @@ jobs:
       - run: flutter pub get
       - name: Build Windows release
         run: flutter build windows --release
+        env:
+          CMAKE_GENERATOR: Visual Studio 17 2022
       - name: Package portable zip
         run: |
           Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath TKK-EyeGuard-Windows-Portable.zip
