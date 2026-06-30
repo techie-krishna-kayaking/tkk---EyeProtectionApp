@@ -61,7 +61,7 @@ jobs:
       - run: flutter pub get
       - name: Build APK
         run: flutter build apk --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: android
           path: |
@@ -95,7 +95,7 @@ jobs:
             --app-drop-link 380 180 \
             "TKK-EyeGuard.dmg" \
             "$APP_PATH" || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos
           path: |
@@ -131,7 +131,7 @@ jobs:
         run: |
           iscc installers\windows\eyeguard.iss
         shell: cmd
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows
           path: |
@@ -156,7 +156,7 @@ jobs:
         run: flutter build ios --release --no-codesign
       - name: Archive build folder
         run: tar -czf ios-build.tar.gz build/ios/iphoneos
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ios
           path: ios-build.tar.gz

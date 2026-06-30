@@ -68,7 +68,7 @@ jobs:
       - run: flutter pub get
       - run: flutter build apk --release
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TKK-EyeGuard-Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
@@ -104,7 +104,7 @@ jobs:
             "$APP_PATH" \
           || hdiutil create -volname "TKK EyeGuard" -srcfolder "$APP_PATH" -ov -format UDZO "TKK-EyeGuard.dmg"
       - name: Upload DMG
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TKK-EyeGuard-macOS-DMG
           path: TKK-EyeGuard.dmg
@@ -140,13 +140,13 @@ jobs:
         run: iscc installers\windows\eyeguard.iss
         shell: cmd
       - name: Upload portable EXE (zip)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TKK-EyeGuard-Windows-Portable
           path: TKK-EyeGuard-Windows-Portable.zip
           if-no-files-found: error
       - name: Upload installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TKK-EyeGuard-Windows-Installer
           path: installers/windows/Output/*.exe
@@ -178,7 +178,7 @@ jobs:
           cp -R "$APP_PATH" Payload/
           zip -r -q TKK-EyeGuard-iOS-unsigned.ipa Payload
       - name: Upload iOS app
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: TKK-EyeGuard-iOS-unsigned
           path: TKK-EyeGuard-iOS-unsigned.ipa
