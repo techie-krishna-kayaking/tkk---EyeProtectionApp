@@ -1,0 +1,699 @@
+# ROLE
+You are an expert team consisting of:
+* Senior Software Architect
+* Flutter Expert
+* Native Windows Developer
+* Native macOS Developer
+* Android Engineer
+* iOS Engineer
+* DevOps Engineer
+* GitHub Actions Expert
+* UI/UX Designer
+* QA Automation Engineer
+* Technical Writer
+
+Your goal is to build a **production-grade**, **cross-platform**, **extremely lightweight** application from scratch.
+
+The application should be enterprise-quality and ready for GitHub.
+
+---
+# PROJECT
+App Name
+**TKK EyeGuard**
+(Keep the name configurable so I can rename it later.)
+---
+# OBJECTIVE
+Build a lightweight background application that reminds users every hour to perform eye exercises while intelligently avoiding interruptions during meetings or calls.
+
+The application should work on
+* Windows
+* macOS
+* Android
+* iPhone (iOS)
+
+Use one shared codebase wherever possible.
+
+---
+# MOST IMPORTANT REQUIREMENT
+This application MUST be extremely lightweight.
+Target resource usage
+Memory
+<20 MB preferred
+Maximum 30 MB
+CPU
+Nearly zero while idle
+Battery
+Negligible
+Disk
+Very small footprint
+Startup
+Very fast
+Avoid unnecessary polling.
+Prefer event-driven architecture.
+---
+# RECOMMENDED TECH STACK
+Prefer Flutter.
+Flutter Desktop
+Flutter Mobile
+Riverpod
+Hive
+SQLite
+Go Router
+MVVM
+Clean Architecture
+Dependency Injection
+Repository Pattern
+Material 3
+Native APIs only when required.
+If Flutter cannot achieve a platform-specific feature efficiently, use platform channels.
+
+---
+# APPLICATION FEATURES
+## 1. Launch Automatically
+When user logs in
+Windows
+Launch automatically
+macOS
+Launch automatically
+Android
+Restart after reboot if allowed
+iPhone
+Implement the closest possible supported behavior according to Apple's guidelines.
+
+---
+## 2. Silent Background App
+Windows
+System Tray
+macOS
+Menu Bar
+Android
+Foreground/background service
+iPhone
+Supported background behavior
+---
+
+## 3. Hourly Reminder
+Every 60 minutes
+Show a beautiful popup.
+Title
+👀 Eye Exercise Time
+Body
+Take just 30 seconds.
+✅ Look 20 feet away.
+✅ Blink your eyes 20 times.
+✅ Roll your eyes clockwise.
+✅ Roll your eyes anti-clockwise.
+✅ Relax.
+Buttons
+Done
+Snooze 5 minutes
+Skip
+
+---
+## 4. Meeting Detection
+If the microphone is currently being used
+DO NOT SHOW THE POPUP.
+Detect usage from
+Microsoft Teams
+Zoom
+Google Meet
+Slack
+Discord
+FaceTime
+Webex
+Skype
+or ANY application currently using the microphone.
+When microphone becomes free
+Wait 2–5 minutes
+Then show reminder.
+
+---
+## 5. Notification Behaviour
+Native notifications
+Native popup
+Native sound
+Respect
+Focus Mode
+Do Not Disturb
+Notification permissions
+
+---
+## 6. Eye Exercise Screen
+Beautiful animations
+Countdown timer
+20-second animation
+Blink animation
+Eye rotation animation
+Breathing animation
+Progress ring
+Completion celebration
+
+---
+## 7. Dashboard
+Statistics
+Today's reminders
+Completed
+Skipped
+Snoozed
+Completion %
+Weekly streak
+Monthly streak
+Last reminder
+Current streak
+Average completion
+
+---
+## 8. Settings
+Allow changing
+Reminder interval
+30 min
+45 min
+60 min
+90 min
+120 min
+Start at login
+ON/OFF
+
+Notification sound
+ON/OFF
+Dark mode
+Light mode
+System mode
+Language
+Reset settings
+Backup settings
+Restore settings
+Export data
+Import data
+---
+## 9. Theme
+Modern
+Minimal
+Apple inspired
+Rounded corners
+Glassmorphism where appropriate
+Dark mode
+Light mode
+Responsive
+High DPI
+Beautiful icons
+Native fonts
+
+---
+## 10. Performance
+App should consume
+Very little RAM
+Very little CPU
+Very little battery
+No memory leaks
+No unnecessary background work
+No unnecessary network calls
+Everything should work offline.
+---
+# DATA STORAGE
+Store locally
+Settings
+Statistics
+Reminder history
+Completion history
+No backend required.
+---
+
+# PROJECT STRUCTURE
+Create professional folder structure.
+Example
+```
+/android
+/ios
+/windows
+/macos
+/linux (optional)
+/web (optional)
+/lib
+/assets
+/icons
+/fonts
+/docs
+/screenshots
+/test
+/integration_test
+/.github
+
+README.md
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+```
+
+---
+
+# CODE QUALITY
+Production quality
+No warnings
+No TODO comments
+Proper documentation
+SOLID principles
+Clean Architecture
+Repository Pattern
+Dependency Injection
+Null Safety
+Error handling
+Logging
+Linting
+Unit tests
+Widget tests
+
+Integration tests
+
+---
+
+# BUILD PIPELINE
+
+Create GitHub Actions.
+
+Every push should
+
+Run tests
+
+Run formatter
+
+Run lint
+
+Build Release
+
+Generate artifacts
+
+---
+
+# BUILD OUTPUTS
+
+Automatically generate
+
+Windows
+
+Portable EXE
+
+Installer EXE
+
+macOS
+
+.app
+
+.dmg
+
+Android
+
+.apk
+
+.aab
+
+iOS
+
+Generate Xcode archive-ready project.
+
+Document Apple code signing and TestFlight/App Store release steps (IPA generation requires Apple certificates and cannot be fully automated in a public workflow).
+
+Attach all generated artifacts to GitHub Releases.
+
+---
+
+# INSTALLERS
+
+Windows
+
+Create installer
+
+using
+
+Inno Setup
+
+or
+
+NSIS
+
+macOS
+
+Generate professional DMG
+
+Android
+
+Generate Release APK
+
+Generate App Bundle
+
+---
+
+# RELEASES
+
+Automatically
+
+Tag release
+
+Generate Release Notes
+
+Attach
+
+EXE
+
+DMG
+
+APK
+
+AAB
+
+---
+
+# DOCUMENTATION
+
+Generate
+
+README.md
+
+Developer Guide
+
+Architecture Guide
+
+Deployment Guide
+
+User Guide
+
+Contribution Guide
+
+API documentation
+
+Folder Structure documentation
+
+Build Instructions
+
+Release Instructions
+
+Troubleshooting Guide
+
+FAQ
+
+Roadmap
+
+Version History
+
+---
+
+# README
+
+Create one of the best-looking README files on GitHub.
+
+Include
+
+Hero banner
+
+Application logo
+
+Animated GIF
+
+Screenshots
+
+Features
+
+Architecture
+
+Folder Structure
+
+Installation
+
+Downloads
+
+Tech Stack
+
+CI/CD
+
+Performance
+
+Roadmap
+
+Contributing
+
+License
+
+Acknowledgements
+
+FAQ
+
+---
+
+Use attractive badges.
+
+Examples
+
+Flutter
+
+Dart
+
+Windows
+
+macOS
+
+Android
+
+iOS
+
+GitHub Actions
+
+MIT
+
+PRs Welcome
+
+Version
+
+Downloads
+
+Stars
+
+Forks
+
+Issues
+
+Last Commit
+
+---
+
+# SOCIALS
+
+Read the existing README in this repository.
+
+Automatically extract and reuse my social links.
+
+Do NOT use placeholders if the links already exist.
+
+If available, include
+
+GitHub
+
+LinkedIn
+
+YouTube
+
+Website
+
+Instagram
+
+Twitter/X
+
+Email
+
+Discord
+
+Topmate
+
+Medium
+
+Dev.to
+
+Arrange them beautifully using icons.
+
+---
+
+# BRANDING
+
+Generate
+
+Modern Logo
+
+Minimal Logo
+
+Dark Logo
+
+Light Logo
+
+App Icon
+
+macOS Icon
+
+Windows Icon
+
+Android Icon
+
+Favicon
+
+Splash Screen
+
+Brand Colors
+
+Typography
+
+---
+
+# TESTING
+
+Generate
+
+Unit Tests
+
+Widget Tests
+
+Integration Tests
+
+Smoke Tests
+
+CI Tests
+
+Performance Tests
+
+---
+
+# SECURITY
+
+Follow
+
+OWASP
+
+Flutter security best practices
+
+No secrets committed
+
+GitHub Secrets
+
+Signed releases
+
+Secure storage
+
+---
+
+# ACCESSIBILITY
+
+Keyboard shortcuts
+
+Screen reader support
+
+High contrast
+
+Dynamic font sizes
+
+Accessible colors
+
+---
+
+# FUTURE FEATURES
+
+Design architecture to support
+
+AI posture detection
+
+Face distance detection
+
+Webcam fatigue detection
+
+Water reminder
+
+Stretch reminder
+
+Pomodoro
+
+Break timer
+
+Health analytics
+
+Apple Health
+
+Google Fit
+
+Microsoft Health
+
+Wearables
+
+Cloud sync
+
+Multi-device sync
+
+---
+
+# GITHUB
+
+Create
+
+Professional repository
+
+Issue Templates
+
+PR Template
+
+Bug Report Template
+
+Feature Request Template
+
+GitHub Discussions
+
+Dependabot
+
+CodeQL
+
+GitHub Actions
+
+Release Workflow
+
+Auto Versioning
+
+Semantic Versioning
+
+---
+
+# DELIVERABLES
+
+The final repository should contain
+
+✅ Complete source code
+✅ Beautiful UI
+✅ Production-ready architecture
+✅ Professional README
+✅ Icons
+✅ Logo
+✅ Documentation
+✅ Tests
+✅ GitHub Actions
+✅ Windows EXE
+✅ Windows Installer
+✅ macOS APP
+✅ macOS DMG
+✅ Android APK
+✅ Android AAB
+✅ iOS Xcode Project
+✅ Release workflows
+✅ Automatic GitHub Releases
+✅ Build scripts
+✅ Versioning
+✅ Changelog generation
+
+---
+# CODING STANDARDS
+* Write clean, modular, production-ready code.
+* Use meaningful variable and class names.
+* Keep methods small and reusable.
+* Follow Flutter/Dart best practices.
+* Add comments only where they improve understanding.
+* Ensure the project compiles without errors.
+* Use the latest stable versions of dependencies.
+* Optimize for performance and low memory usage.
+
+---
+# IMPORTANT
+
+Do **not** generate placeholders, pseudo-code, incomplete implementations, or "TODO" sections. Build a complete, working application with all required source code, assets, configuration files, CI/CD workflows, documentation, and release automation. If a platform has technical limitations (such as automated iOS IPA generation without Apple signing credentials), implement the maximum possible automation and clearly document the remaining manual steps.

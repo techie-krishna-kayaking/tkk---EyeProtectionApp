@@ -1,0 +1,161 @@
+name: Build Artifacts
+
+# Produces downloadable APK, DMG, EXE and iOS app builds.
+# Run it manually from the Actions tab ("Run workflow"), or it runs on every
+# push to main. Download the results from the run's "Artifacts" section.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: "3.24.5"
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Android → APK + AAB
+  # ---------------------------------------------------------------------------
+  android:
+    name: Android (APK + AAB)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter create --platforms=android .
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - run: flutter build appbundle --release
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-Android-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-Android-AAB
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # macOS → .app + .dmg
+  # ---------------------------------------------------------------------------
+  macos:
+    name: macOS (DMG)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter config --enable-macos-desktop
+      - run: flutter create --platforms=macos .
+      - run: flutter pub get
+      - run: flutter build macos --release
+      - name: Package DMG
+        run: |
+          brew install create-dmg
+          APP_PATH=$(find build/macos/Build/Products/Release -maxdepth 1 -name "*.app" | head -n 1)
+          create-dmg \
+            --volname "TKK EyeGuard" \
+            --window-size 540 380 \
+            --icon-size 110 \
+            --app-drop-link 380 180 \
+            "TKK-EyeGuard.dmg" \
+            "$APP_PATH" \
+          || hdiutil create -volname "TKK EyeGuard" -srcfolder "$APP_PATH" -ov -format UDZO "TKK-EyeGuard.dmg"
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-macOS-DMG
+          path: TKK-EyeGuard.dmg
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Windows → portable EXE (zip) + Inno Setup installer
+  # ---------------------------------------------------------------------------
+  windows:
+    name: Windows (EXE)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter config --enable-windows-desktop
+      - run: flutter create --platforms=windows .
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Package portable zip
+        run: Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath TKK-EyeGuard-Windows-Portable.zip
+        shell: pwsh
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+        shell: pwsh
+      - name: Build installer
+        run: iscc installers\windows\eyeguard.iss
+        shell: cmd
+      - name: Upload portable EXE (zip)
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-Windows-Portable
+          path: TKK-EyeGuard-Windows-Portable.zip
+          if-no-files-found: error
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-Windows-Installer
+          path: installers/windows/Output/*.exe
+          if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # iOS → unsigned .app (a fully signed .ipa requires Apple certificates;
+  #       see docs/RELEASE.md). The unsigned app is provided for inspection /
+  #       sideloading via your own signing.
+  # ---------------------------------------------------------------------------
+  ios:
+    name: iOS (unsigned app)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter create --platforms=ios .
+      - run: flutter pub get
+      - name: Build iOS (no codesign)
+        run: flutter build ios --release --no-codesign
+      - name: Package unsigned .app as IPA (Payload)
+        run: |
+          APP_PATH=$(find build/ios/iphoneos -maxdepth 1 -name "*.app" | head -n 1)
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+          zip -r -q TKK-EyeGuard-iOS-unsigned.ipa Payload
+      - name: Upload iOS app
+        uses: actions/upload-artifact@v4
+        with:
+          name: TKK-EyeGuard-iOS-unsigned
+          path: TKK-EyeGuard-iOS-unsigned.ipa
+          if-no-files-found: error

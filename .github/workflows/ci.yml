@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: "3.24.5"
+
+jobs:
+  analyze-and-test:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
+
+  build-matrix:
+    name: Build ${{ matrix.target }}
+    needs: analyze-and-test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: android
+          - os: macos-latest
+            target: macos
+          - os: macos-latest
+            target: ios
+          - os: windows-latest
+            target: windows
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Enable desktop (Windows/macOS)
+        if: matrix.target == 'windows' || matrix.target == 'macos'
+        run: flutter config --enable-${{ matrix.target }}-desktop
+
+      - name: Scaffold native platform folders
+        run: flutter create --platforms=android,ios,macos,windows,linux .
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android (debug APK)
+        if: matrix.target == 'android'
+        run: flutter build apk --debug
+
+      - name: Build macOS (debug)
+        if: matrix.target == 'macos'
+        run: flutter build macos --debug
+
+      - name: Build iOS (no codesign)
+        if: matrix.target == 'ios'
+        run: flutter build ios --debug --no-codesign
+
+      - name: Build Windows (debug)
+        if: matrix.target == 'windows'
+        run: flutter build windows --debug
