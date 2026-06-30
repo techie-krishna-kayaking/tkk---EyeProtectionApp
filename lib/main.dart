@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -36,14 +38,16 @@ Future<void> main() async {
     ],
   );
 
-  await _initServices(container);
-
   runApp(
     UncontrolledProviderScope(
       container: container,
       child: const EyeGuardApp(),
     ),
   );
+
+  // Do not block first frame on native services (permissions/channels can be
+  // slow on some desktops). This prevents a "black window" on launch.
+  unawaited(_initServices(container));
 }
 
 /// Set up the desktop window: compact default size, hidden from the taskbar
@@ -66,22 +70,37 @@ Future<void> _configureDesktopWindow() async {
 
 /// Initialise platform services and start the runtime coordinator.
 Future<void> _initServices(ProviderContainer container) async {
-  final NotificationService notifications =
-      container.read(notificationServiceProvider);
-  await notifications.init();
-  await notifications.requestPermissions();
+  try {
+    final NotificationService notifications =
+        container.read(notificationServiceProvider);
+    await notifications.init().timeout(const Duration(seconds: 4));
+    unawaited(notifications.requestPermissions());
 
-  await container.read(microphoneServiceProvider).start();
+    await container
+        .read(microphoneServiceProvider)
+        .start()
+        .timeout(const Duration(seconds: 3));
 
-  if (PlatformInfo.supportsTray) {
-    await container.read(trayServiceProvider).init();
+    if (PlatformInfo.supportsTray) {
+      await container
+          .read(trayServiceProvider)
+          .init()
+          .timeout(const Duration(seconds: 3));
+    }
+
+    // Reflect the persisted "start at login" preference on the OS.
+    final bool startup =
+        container.read(settingsControllerProvider).launchAtStartup;
+    await container
+        .read(autostartServiceProvider)
+        .setEnabled(startup)
+        .timeout(const Duration(seconds: 3));
+
+    container.read(appCoordinatorProvider).start();
+    AppLogger.info('${AppConfig.appName} ready.');
+  } catch (e) {
+    // Keep UI responsive even if native integrations are unavailable.
+    AppLogger.warning('Startup services partially failed: $e');
+    container.read(appCoordinatorProvider).start();
   }
-
-  // Reflect the persisted "start at login" preference on the OS.
-  final bool startup =
-      container.read(settingsControllerProvider).launchAtStartup;
-  await container.read(autostartServiceProvider).setEnabled(startup);
-
-  container.read(appCoordinatorProvider).start();
-  AppLogger.info('${AppConfig.appName} ready.');
 }
