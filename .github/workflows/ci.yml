@@ -58,7 +58,7 @@ jobs:
             target: macos
           - os: macos-latest
             target: ios
-          - os: windows-latest
+          - os: windows-2019
             target: windows
     runs-on: ${{ matrix.os }}
     steps:
@@ -79,7 +79,10 @@ jobs:
 
       - name: Align Android NDK version with plugins
         if: matrix.target == 'android'
-        run: sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
+        run: |
+          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
+          grep -q 'isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts || sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
+          grep -q 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' android/app/build.gradle.kts || sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")' android/app/build.gradle.kts
 
       - name: Install dependencies
         run: flutter pub get
