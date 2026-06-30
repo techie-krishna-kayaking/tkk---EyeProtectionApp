@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  FLUTTER_VERSION: "3.24.5"
+  FLUTTER_VERSION: "3.32.0"
 
 jobs:
   # ---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      - run: flutter create --platforms=android .
+      - run: flutter create --project-name tkk_eyeguard --platforms=android .
       - run: flutter pub get
       - name: Build APK
         run: flutter build apk --release
@@ -55,7 +55,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter config --enable-macos-desktop
-      - run: flutter create --platforms=macos .
+      - run: flutter create --project-name tkk_eyeguard --platforms=macos .
       - run: flutter pub get
       - name: Build macOS release
         run: flutter build macos --release
@@ -89,7 +89,7 @@ jobs:
           channel: stable
           cache: true
       - run: flutter config --enable-windows-desktop
-      - run: flutter create --platforms=windows .
+      - run: flutter create --project-name tkk_eyeguard --platforms=windows .
       - run: flutter pub get
       - name: Build Windows release
         run: flutter build windows --release
@@ -123,7 +123,7 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
-      - run: flutter create --platforms=ios .
+      - run: flutter create --project-name tkk_eyeguard --platforms=ios .
       - run: flutter pub get
       - name: Build iOS (no codesign)
         run: flutter build ios --release --no-codesign

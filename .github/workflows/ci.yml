@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: "3.24.5"
+  FLUTTER_VERSION: "3.32.0"
 
 jobs:
   analyze-and-test:
@@ -75,7 +75,7 @@ jobs:
         run: flutter config --enable-${{ matrix.target }}-desktop
 
       - name: Scaffold native platform folders
-        run: flutter create --platforms=android,ios,macos,windows,linux .
+        run: flutter create --project-name tkk_eyeguard --platforms=android,ios,macos,windows,linux .
 
       - name: Install dependencies
         run: flutter pub get
