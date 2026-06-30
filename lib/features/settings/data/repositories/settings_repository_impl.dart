@@ -13,6 +13,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
   final Box<dynamic> _box;
 
   static const String _kInterval = 'interval_minutes';
+  static const String _kExactSchedule = 'use_exact_hour_schedule';
+  static const String _kExactHours = 'exact_reminder_hours';
   static const String _kStartup = 'launch_at_startup';
   static const String _kSound = 'notification_sound';
   static const String _kMeeting = 'respect_meeting_detection';
@@ -24,6 +26,11 @@ class SettingsRepositoryImpl implements SettingsRepository {
     return AppSettings(
       intervalMinutes: _box.get(_kInterval,
           defaultValue: AppConfig.defaultInterval.inMinutes) as int,
+      useExactHourSchedule: _box.get(_kExactSchedule, defaultValue: true) as bool,
+      exactReminderHours:
+        (_box.get(_kExactHours, defaultValue: AppConfig.exactReminderHours)
+            as List<dynamic>)
+          .cast<int>(),
       launchAtStartup: _box.get(_kStartup, defaultValue: true) as bool,
       notificationSound: _box.get(_kSound, defaultValue: true) as bool,
       respectMeetingDetection:
@@ -39,6 +46,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
     try {
       await _box.putAll(<String, dynamic>{
         _kInterval: settings.intervalMinutes,
+        _kExactSchedule: settings.useExactHourSchedule,
+        _kExactHours: settings.exactReminderHours,
         _kStartup: settings.launchAtStartup,
         _kSound: settings.notificationSound,
         _kMeeting: settings.respectMeetingDetection,
@@ -63,6 +72,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
     return <String, dynamic>{
       'version': 1,
       _kInterval: s.intervalMinutes,
+      _kExactSchedule: s.useExactHourSchedule,
+      _kExactHours: s.exactReminderHours,
       _kStartup: s.launchAtStartup,
       _kSound: s.notificationSound,
       _kMeeting: s.respectMeetingDetection,
@@ -76,6 +87,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
     final AppSettings current = load();
     final AppSettings merged = current.copyWith(
       intervalMinutes: data[_kInterval] as int?,
+      useExactHourSchedule: data[_kExactSchedule] as bool?,
+      exactReminderHours: (data[_kExactHours] as List<dynamic>?)?.cast<int>(),
       launchAtStartup: data[_kStartup] as bool?,
       notificationSound: data[_kSound] as bool?,
       respectMeetingDetection: data[_kMeeting] as bool?,

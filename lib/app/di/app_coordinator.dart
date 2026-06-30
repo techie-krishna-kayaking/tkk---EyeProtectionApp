@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/app_config.dart';
+import '../../core/constants/reminder_messages.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/tray_service.dart';
 import '../../core/utils/logger.dart';
@@ -41,19 +42,25 @@ class AppCoordinator {
 
     _scheduler.start(
       interval: Duration(minutes: settings.intervalMinutes),
+      useExactHours: settings.useExactHourSchedule,
+      exactHours: settings.exactReminderHours,
       respectMeetings: settings.respectMeetingDetection,
     );
 
-    _subs.add(_scheduler.onDue.listen((_) => _handleDue()));
+    _subs.add(_scheduler.onDue.listen(_handleDue));
     _subs.add(_notifications.actions.listen(_handleNotificationAction));
     _subs.add(_ref.read(trayServiceProvider).commands.listen(_handleTray));
 
     AppLogger.info('AppCoordinator started.');
   }
 
-  Future<void> _handleDue() async {
+  Future<void> _handleDue(DateTime dueAt) async {
     final settings = _ref.read(settingsControllerProvider);
-    await _notifications.showReminder(withSound: settings.notificationSound);
+    await _notifications.showReminder(
+      withSound: settings.notificationSound,
+      title: ReminderMessages.softHourTitle(dueAt),
+      body: ReminderMessages.softHourBody(dueAt),
+    );
     if (!_reminderDue.isClosed) _reminderDue.add(null);
   }
 

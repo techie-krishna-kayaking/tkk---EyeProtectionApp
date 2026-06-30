@@ -25,6 +25,10 @@ class AppConfig {
   /// Default reminder cadence.
   static const Duration defaultInterval = Duration(minutes: 60);
 
+  /// Exact-hour schedule (24h clock) used when precise clock-time reminders
+  /// are enabled.
+  static const List<int> exactReminderHours = <int>[10, 18, 19, 20, 21];
+
   /// Allowed reminder intervals (minutes) surfaced in Settings.
   static const List<int> selectableIntervalsMinutes = <int>[30, 45, 60, 90, 120];
 

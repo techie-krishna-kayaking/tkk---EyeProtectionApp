@@ -45,6 +45,19 @@ class ReminderMessages {
 
   /// Convenience getter so the UI never hardcodes the brand name.
   static String get appName => AppConfig.appName;
+
+  static String softHourTitle(DateTime when) {
+    return 'Gentle reminder • ${_hourLabel(when)}';
+  }
+
+  static String softHourBody(DateTime when) {
+    return 'It is ${_hourLabel(when)}.\nTake a soft 30-second eye break.';
+  }
+
+  static String _hourLabel(DateTime when) {
+    final String h = when.hour.toString().padLeft(2, '0');
+    return '$h:00';
+  }
 }
 
 /// A single step inside the guided routine.

@@ -21,6 +21,18 @@ class SettingsController extends StateNotifier<AppSettings> {
     await _persist(state.copyWith(intervalMinutes: minutes));
     _ref.read(reminderSchedulerProvider).reconfigure(
           interval: Duration(minutes: minutes),
+          useExactHours: state.useExactHourSchedule,
+          exactHours: state.exactReminderHours,
+          respectMeetings: state.respectMeetingDetection,
+        );
+  }
+
+  Future<void> setUseExactHourSchedule(bool value) async {
+    await _persist(state.copyWith(useExactHourSchedule: value));
+    _ref.read(reminderSchedulerProvider).reconfigure(
+          interval: Duration(minutes: state.intervalMinutes),
+          useExactHours: value,
+          exactHours: state.exactReminderHours,
           respectMeetings: state.respectMeetingDetection,
         );
   }
@@ -37,6 +49,8 @@ class SettingsController extends StateNotifier<AppSettings> {
     await _persist(state.copyWith(respectMeetingDetection: value));
     _ref.read(reminderSchedulerProvider).reconfigure(
           interval: Duration(minutes: state.intervalMinutes),
+          useExactHours: state.useExactHourSchedule,
+          exactHours: state.exactReminderHours,
           respectMeetings: value,
         );
   }

@@ -85,7 +85,11 @@ class NotificationService {
 
   /// Show the hourly reminder. [withSound] honours the user's preference and
   /// the OS Focus / Do-Not-Disturb state (handled natively by the channel).
-  Future<void> showReminder({required bool withSound}) async {
+  Future<void> showReminder({
+    required bool withSound,
+    String? title,
+    String? body,
+  }) async {
     final AndroidNotificationDetails android = AndroidNotificationDetails(
       _channelId,
       _channelName,
@@ -106,8 +110,8 @@ class NotificationService {
 
     await _plugin.show(
       _reminderId,
-      ReminderMessages.notificationTitle,
-      '${AppConfig.appName} • ${ReminderMessages.notificationBody}',
+      title ?? ReminderMessages.notificationTitle,
+      body ?? '${AppConfig.appName} • ${ReminderMessages.notificationBody}',
       NotificationDetails(android: android, iOS: darwin, macOS: darwin),
     );
   }

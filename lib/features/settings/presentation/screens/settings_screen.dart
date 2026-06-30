@@ -28,6 +28,17 @@ class SettingsScreen extends ConsumerWidget {
               title: 'Reminders',
               child: Column(
                 children: <Widget>[
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Run at exact clock hours'),
+                    subtitle: Text(
+                      settings.useExactHourSchedule
+                          ? 'Enabled: ${settings.exactReminderHours.map((int h) => '${h.toString().padLeft(2, '0')}:00').join(', ')}'
+                          : 'Disabled: use interval-based reminders.',
+                    ),
+                    value: settings.useExactHourSchedule,
+                    onChanged: controller.setUseExactHourSchedule,
+                  ),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Reminder interval'),

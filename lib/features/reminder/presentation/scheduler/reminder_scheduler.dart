@@ -31,6 +31,8 @@ class ReminderScheduler {
   Timer? _timer;
   StreamSubscription<bool>? _micSub;
   Duration _interval = AppConfig.defaultInterval;
+  bool _useExactHours = true;
+  List<int> _exactHours = AppConfig.exactReminderHours;
   bool _respectMeetings = true;
   bool _pendingDeferred = false;
   DateTime? _nextDueAt;
@@ -41,26 +43,41 @@ class ReminderScheduler {
   /// Start (or restart) scheduling with the given [interval].
   void start({
     required Duration interval,
+    required bool useExactHours,
+    required List<int> exactHours,
     required bool respectMeetings,
   }) {
     _interval = interval;
+    _useExactHours = useExactHours;
+    _exactHours = _normalizeHours(exactHours);
     _respectMeetings = respectMeetings;
 
     _micSub ??= _micService.stream.listen(_onMicChanged);
-    _armTimer(interval);
-    AppLogger.info('Scheduler started: every ${interval.inMinutes} min.');
+    _armNextByPolicy();
+    AppLogger.info(_useExactHours
+        ? 'Scheduler started: exact hours ${_exactHours.join(', ')}.'
+        : 'Scheduler started: every ${interval.inMinutes} min.');
   }
 
   /// Apply new settings without losing elapsed progress unnecessarily.
-  void reconfigure({required Duration interval, required bool respectMeetings}) {
+  void reconfigure({
+    required Duration interval,
+    required bool useExactHours,
+    required List<int> exactHours,
+    required bool respectMeetings,
+  }) {
     final bool intervalChanged = interval != _interval;
+    final bool policyChanged = useExactHours != _useExactHours ||
+        _normalizeHours(exactHours).join(',') != _exactHours.join(',');
     _interval = interval;
+    _useExactHours = useExactHours;
+    _exactHours = _normalizeHours(exactHours);
     _respectMeetings = respectMeetings;
-    if (intervalChanged) _armTimer(interval);
+    if (intervalChanged || policyChanged) _armNextByPolicy();
   }
 
   /// Re-arm the timer for a fresh full interval (after Done / Skip).
-  void scheduleNext() => _armTimer(_interval);
+  void scheduleNext() => _armNextByPolicy();
 
   /// Snooze: fire again after [duration].
   void snooze([Duration duration = AppConfig.snoozeDuration]) {
@@ -76,6 +93,52 @@ class ReminderScheduler {
     _timer?.cancel();
     _nextDueAt = DateTime.now().add(delay);
     _timer = Timer(delay, _fireOrDefer);
+  }
+
+  void _armNextByPolicy() {
+    if (_useExactHours && _exactHours.isNotEmpty) {
+      _armForNextExactHour();
+    } else {
+      _armTimer(_interval);
+    }
+  }
+
+  void _armForNextExactHour() {
+    final DateTime now = DateTime.now();
+    DateTime? next;
+
+    for (final int hour in _exactHours) {
+      final DateTime candidate = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        hour,
+      );
+      if (candidate.isAfter(now)) {
+        next = candidate;
+        break;
+      }
+    }
+
+    next ??= DateTime(
+      now.year,
+      now.month,
+      now.day + 1,
+      _exactHours.first,
+    );
+
+    _timer?.cancel();
+    _nextDueAt = next;
+    _timer = Timer(next.difference(now), _fireOrDefer);
+  }
+
+  List<int> _normalizeHours(List<int> hours) {
+    final List<int> cleaned = hours
+        .where((int h) => h >= 0 && h <= 23)
+        .toSet()
+        .toList()
+      ..sort();
+    return cleaned.isEmpty ? AppConfig.exactReminderHours : cleaned;
   }
 
   void _fireOrDefer() {
