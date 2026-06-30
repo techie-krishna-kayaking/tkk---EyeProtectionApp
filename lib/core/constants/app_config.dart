@@ -9,6 +9,9 @@ class AppConfig {
   /// Change this single value to rebrand the application.
   static const String appName = 'TKK EyeGuard';
 
+  /// Name shown in the dashboard greeting.
+  static const String userName = 'Krishna';
+
   /// Short tagline used in the about dialog and notifications.
   static const String tagline = 'Healthy eyes, every hour.';
 
