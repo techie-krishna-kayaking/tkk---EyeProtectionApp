@@ -14,7 +14,7 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Android: signed-ready APK + AAB
+  # Android: signed-ready APK
   # ---------------------------------------------------------------------------
   android:
     runs-on: ubuntu-latest
@@ -32,20 +32,40 @@ jobs:
       - run: flutter create --project-name tkk_eyeguard --platforms=android .
       - name: Align Android NDK version with plugins
         run: |
-          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
-          grep -q 'isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts || sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
-          grep -q 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' android/app/build.gradle.kts || sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")' android/app/build.gradle.kts
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('android/app/build.gradle.kts')
+          s = p.read_text()
+
+          s = s.replace(
+              'ndkVersion = flutter.ndkVersion',
+              'ndkVersion = "27.0.12077973"',
+          )
+          if 'isCoreLibraryDesugaringEnabled = true' not in s:
+              s = s.replace(
+                  'compileOptions {',
+                  'compileOptions {\n        isCoreLibraryDesugaringEnabled = true',
+                  1,
+              )
+          if 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' not in s:
+              s = s.replace(
+                  'dependencies {',
+                  'dependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")',
+                  1,
+              )
+
+          p.write_text(s)
+          print('Patched android/app/build.gradle.kts successfully')
+          PY
       - run: flutter pub get
       - name: Build APK
         run: flutter build apk --release
-      - name: Build App Bundle
-        run: flutter build appbundle --release
       - uses: actions/upload-artifact@v4
         with:
           name: android
           path: |
             build/app/outputs/flutter-apk/app-release.apk
-            build/app/outputs/bundle/release/app-release.aab
 
   # ---------------------------------------------------------------------------
   # macOS: .app + .dmg

@@ -80,9 +80,32 @@ jobs:
       - name: Align Android NDK version with plugins
         if: matrix.target == 'android'
         run: |
-          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
-          grep -q 'isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts || sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
-          grep -q 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' android/app/build.gradle.kts || sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")' android/app/build.gradle.kts
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('android/app/build.gradle.kts')
+          s = p.read_text()
+
+          s = s.replace(
+            'ndkVersion = flutter.ndkVersion',
+            'ndkVersion = "27.0.12077973"',
+          )
+          if 'isCoreLibraryDesugaringEnabled = true' not in s:
+            s = s.replace(
+              'compileOptions {',
+              'compileOptions {\n        isCoreLibraryDesugaringEnabled = true',
+              1,
+            )
+          if 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' not in s:
+            s = s.replace(
+              'dependencies {',
+              'dependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")',
+              1,
+            )
+
+          p.write_text(s)
+          print('Patched android/app/build.gradle.kts successfully')
+          PY
 
       - name: Install dependencies
         run: flutter pub get

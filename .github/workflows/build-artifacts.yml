@@ -20,10 +20,10 @@ env:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # Android → APK + AAB
+  # Android → APK
   # ---------------------------------------------------------------------------
   android:
-    name: Android (APK + AAB)
+    name: Android (APK)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -39,23 +39,39 @@ jobs:
       - run: flutter create --project-name tkk_eyeguard --platforms=android .
       - name: Align Android NDK version with plugins
         run: |
-          sed -i 's/ndkVersion = flutter.ndkVersion/ndkVersion = "27.0.12077973"/' android/app/build.gradle.kts
-          grep -q 'isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts || sed -i '/compileOptions {/a\        isCoreLibraryDesugaringEnabled = true' android/app/build.gradle.kts
-          grep -q 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' android/app/build.gradle.kts || sed -i '/dependencies {/a\    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")' android/app/build.gradle.kts
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('android/app/build.gradle.kts')
+          s = p.read_text()
+
+          s = s.replace(
+              'ndkVersion = flutter.ndkVersion',
+              'ndkVersion = "27.0.12077973"',
+          )
+          if 'isCoreLibraryDesugaringEnabled = true' not in s:
+              s = s.replace(
+                  'compileOptions {',
+                  'compileOptions {\n        isCoreLibraryDesugaringEnabled = true',
+                  1,
+              )
+          if 'coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:' not in s:
+              s = s.replace(
+                  'dependencies {',
+                  'dependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")',
+                  1,
+              )
+
+          p.write_text(s)
+          print('Patched android/app/build.gradle.kts successfully')
+          PY
       - run: flutter pub get
       - run: flutter build apk --release
-      - run: flutter build appbundle --release
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: TKK-EyeGuard-Android-APK
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-      - name: Upload AAB
-        uses: actions/upload-artifact@v4
-        with:
-          name: TKK-EyeGuard-Android-AAB
-          path: build/app/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
